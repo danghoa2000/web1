@@ -6,10 +6,16 @@ use Illuminate\Http\Request;
 use App\Coupon;
 use Session;
 use Illuminate\Support\Facades\Redirect;
-session_start();
 
 class CouponController extends Controller
 {
+	public function __construct()
+    {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+    }
+
 	public function unset_coupon(){
 		$coupon = Session::get('coupon');
         if($coupon==true){

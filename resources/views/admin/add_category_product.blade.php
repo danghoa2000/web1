@@ -14,7 +14,6 @@
                             }
                             ?>
                         <div class="panel-body">
-
                             <div class="position-center">
                                 <form role="form" action="{{URL::to('/save-category-product')}}" method="post">
                                     {{ csrf_field() }}
@@ -30,7 +29,7 @@
                                 <div class="form-group">
                                     <label for="exampleInputPassword1">Hiển thị</label>
                                       <select name="category_product_status" class="form-control input-sm m-bot15">
-                                           <option value="0">Hiển thị</option>
+                                           <option value="0" selected>Hiển thị</option>
                                             <option value="1">Ẩn</option>
                                             
                                     </select>

@@ -9,9 +9,15 @@ use App\Slider;
 use Session;
 use App\Http\Requests;
 use Illuminate\Support\Facades\Redirect;
-session_start();
 class BrandProduct extends Controller
 {
+    public function __construct()
+    {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+    }
+
     public function AuthLogin(){
         $admin_id = Session::get('admin_id');
         if($admin_id){

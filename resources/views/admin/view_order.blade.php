@@ -1,6 +1,5 @@
 @extends('admin_layout')
 @section('admin_content')
-    
     <div class="table-agile-info">
 
         <div class="panel panel-default">
@@ -27,9 +26,6 @@
                             <th>Email</th>
                             <th>Ghi chú</th>
                             <th>Hình thức thanh toán</th>
-
-
-                            <th style="width:30px;"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -50,8 +46,6 @@
                                     Paypal
                                 @endif
                             </td>
-
-
                         </tr>
 
                     </tbody>
@@ -92,7 +86,6 @@
                             <th>Số lượng</th>
                             <th>Giá sản phẩm</th>
                             <th>Tổng tiền</th>
-                            <th style="width:30px;"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -118,13 +111,13 @@
                                         Không mã
                                     @endif
                                 </td>
-                                <td>{{$details->product_sales_quantity}}</td>
+                                <td>{{ $details->product_sales_quantity }}</td>
                                 <td>{{ number_format($details->product_price, 0, ',', '.') }}đ</td>
                                 <td>{{ number_format($subtotal, 0, ',', '.') }}đ</td>
                             </tr>
                         @endforeach
                         <tr>
-                            <td colspan="2">
+                            <td colspan="6">
                                 @php
                                     $total_coupon = 0;
                                 @endphp
@@ -149,46 +142,24 @@
                         <tr>
                             <td colspan="6">
                                 @foreach ($order as $key => $or)
-                                    @if ($or->order_status == 1)
-                                        <form>
-                                            @csrf
-                                            <select class="form-control order_details">
-                                                <option value="">----Chọn hình thức đơn hàng-----</option>
-                                                <option id="{{ $or->order_id }}" selected value="1">Chưa xử lý
-                                                </option>
-                                                <option id="{{ $or->order_id }}" value="2">Đã xử lý-Đã giao hàng
-                                                </option>
-                                                <option id="{{ $or->order_id }}" value="3">Hủy đơn hàng-tạm giữ
-                                                </option>
-                                            </select>
-                                        </form>
-                                    @elseif($or->order_status == 2)
-                                        <form>
-                                            @csrf
-                                            <select class="form-control order_details">
-                                                <option value="">----Chọn hình thức đơn hàng-----</option>
-                                                <option id="{{ $or->order_id }}" value="1">Chưa xử lý</option>
-                                                <option id="{{ $or->order_id }}" selected value="2">Đã xử lý-Đã giao
-                                                    hàng</option>
-                                                <option id="{{ $or->order_id }}" value="3">Hủy đơn hàng-tạm giữ
-                                                </option>
-                                            </select>
-                                        </form>
-                                    @elseif($or->order_status == 3)
-                                        <form>
-                                            @csrf
-                                            <select class="form-control order_details">
-                                                <option value="">----Chọn hình thức đơn hàng-----</option>
-                                                <option id="{{ $or->order_id }}" value="1">Chưa xử lý</option>
-                                                <option id="{{ $or->order_id }}" value="2">Đã xử lý-Đã giao hàng
-                                                </option>
-                                                <option id="{{ $or->order_id }}" selected value="3">Hủy đơn hàng-tạm
-                                                    giữ</option>
-                                            </select>
-                                        </form>
-                                    @endif
+                                    <form>
+                                        @csrf
+                                        <select class="form-control order_details">
+                                            <option value="">----Chọn hình thức đơn hàng-----</option>
+                                            <option id="{{ $or->order_id }}"
+                                                {{ $or->order_status == 1 ? 'selected' : '' }} value="1">Chưa xử lý
+                                            </option>
+                                            <option id="{{ $or->order_id }}"
+                                                {{ $or->order_status == 2 ? 'selected' : '' }} value="2">Đã xử lý-Đã
+                                                giao hàng
+                                            </option>
+                                            <option id="{{ $or->order_id }}"
+                                                {{ $or->order_status == 3 ? 'selected' : '' }} value="3">Hủy đơn
+                                                hàng-tạm giữ
+                                            </option>
+                                        </select>
+                                    </form>
                                 @endforeach
-
 
                             </td>
                         </tr>

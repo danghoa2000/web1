@@ -10,9 +10,15 @@ use App\Slider;
 use Illuminate\Support\Facades\Redirect;
 use Cart;
 use App\Coupon;
-session_start();
 class CartController extends Controller
 {
+    public function __construct()
+    {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+    }
+
     public function check_coupon(Request $request){
         $data = $request->all();
         $coupon = Coupon::where('coupon_code',$data['coupon'])->first();
@@ -54,8 +60,8 @@ class CartController extends Controller
         $slider = Slider::orderBy('slider_id','DESC')->where('slider_status','1')->take(4)->get();
 
         $meta_desc = "Giỏ hàng của bạn"; 
-        $meta_keywords = "Giỏ hàng Ajax";
-        $meta_title = "Giỏ hàng Ajax";
+        $meta_keywords = "Giỏ hàng";
+        $meta_title = "Giỏ hàng";
         $url_canonical = $request->url();
         //--seo
         $cate_product = DB::table('tbl_category_product')->where('category_status','0')->orderby('category_id','desc')->get(); 

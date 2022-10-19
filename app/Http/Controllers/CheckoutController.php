@@ -178,16 +178,15 @@ class CheckoutController extends Controller
         $data['customer_phone'] = $request->customer_phone;
         $data['customer_email'] = $request->customer_email;
         $data['customer_password'] = md5($request->customer_password);
-
-        $customer_id = DB::table('tbl_customers')->insertGetId($data);
-
-        Session::put('customer_id', $customer_id);
-        Session::put('customer_name', $request->customer_name);
-        return Redirect::to('/checkout');
+        DB::table('tbl_customers')->insert($data);
+        return Redirect::back();
     }
     public function checkout(Request $request)
     {
-        //seo 
+        $customer_id = Session::get('customer_id');
+        if (!$customer_id) {
+            return redirect('/dang-nhap');
+        }
         //slide
         $slider = Slider::orderBy('slider_id', 'DESC')->where('slider_status', '1')->take(4)->get();
 
@@ -207,7 +206,7 @@ class CheckoutController extends Controller
     {
         $data = array();
         $data['shipping_name'] = $request->shipping_name;
-        $data['shipping_phone'] = $request->shipping_phone;
+        $data['shipping_phone'] = $request->shipping_phone; 
         $data['shipping_email'] = $request->shipping_email;
         $data['shipping_notes'] = $request->shipping_notes;
         $data['shipping_address'] = $request->shipping_address;
@@ -225,7 +224,7 @@ class CheckoutController extends Controller
         $meta_keywords = "Đăng nhập thanh toán";
         $meta_title = "Đăng nhập thanh toán";
         $url_canonical = $request->url();
-        //--seo 
+        //--seo  
         $cate_product = DB::table('tbl_category_product')->where('category_status', '0')->orderby('category_id', 'desc')->get();
         $brand_product = DB::table('tbl_brand')->where('brand_status', '0')->orderby('brand_id', 'desc')->get();
         return view('pages.checkout.payment')->with('category', $cate_product)->with('brand', $brand_product)->with('meta_desc', $meta_desc)->with('meta_keywords', $meta_keywords)->with('meta_title', $meta_title)->with('url_canonical', $url_canonical);
@@ -241,11 +240,9 @@ class CheckoutController extends Controller
         $email = $request->email_account;
         $password = md5($request->password_account);
         $result = DB::table('tbl_customers')->where('customer_email', $email)->where('customer_password', $password)->first();
-
-
         if ($result) {
-
             Session::put('customer_id', $result->customer_id);
+            Session::put('customer_name', $request->customer_name);
             return Redirect::to('/');
         } else {
             return Redirect::to('/dang-nhap');

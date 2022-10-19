@@ -12,6 +12,4 @@ class Order extends Model
     ];
     protected $primaryKey = 'order_id';
  	protected $table = 'tbl_order';
-
- 
 }

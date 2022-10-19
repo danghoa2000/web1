@@ -15,103 +15,104 @@ use PDF;
 
 class OrderController extends Controller
 {
-	public function order_code(Request $request ,$order_code){
-		$order = Order::where('order_code',$order_code)->first();
+	public function order_code(Request $request, $order_code)
+	{
+		$order = Order::where('order_code', $order_code)->first();
 		$order->delete();
-		 Session::put('message','Xóa đơn hàng thành công');
-        return redirect()->back();
-
+		Session::put('message', 'Xóa đơn hàng thành công');
+		return redirect()->back();
 	}
-	public function update_qty(Request $request){
+	public function update_qty(Request $request)
+	{
 		$data = $request->all();
-		$order_details = OrderDetails::where('product_id',$data['order_product_id'])->where('order_code',$data['order_code'])->first();
+		$order_details = OrderDetails::where('product_id', $data['order_product_id'])->where('order_code', $data['order_code'])->first();
 		$order_details->product_sales_quantity = $data['order_qty'];
 		$order_details->save();
 	}
-	public function update_order_qty(Request $request){
+	public function update_order_qty(Request $request)
+	{
 		//update order
 		$data = $request->all();
 		$order = Order::find($data['order_id']);
 		$order->order_status = $data['order_status'];
 		$order->save();
-		if($order->order_status==2){
-			foreach($data['order_product_id'] as $key => $product_id){
-				
+		if ($order->order_status == 2) {
+			foreach ($data['order_product_id'] as $key => $product_id) {
+
 				$product = Product::find($product_id);
 				$product_quantity = $product->product_quantity;
 				$product_sold = $product->product_sold;
-				foreach($data['quantity'] as $key2 => $qty){
-						if($key==$key2){
-								$pro_remain = $product_quantity - $qty;
-								$product->product_quantity = $pro_remain;
-								$product->product_sold = $product_sold + $qty;
-								$product->save();
-						}
+				foreach ($data['quantity'] as $key2 => $qty) {
+					if ($key == $key2) {
+						$pro_remain = $product_quantity - $qty;
+						$product->product_quantity = $pro_remain;
+						$product->product_sold = $product_sold + $qty;
+						$product->save();
+					}
 				}
 			}
-		}elseif($order->order_status!=2 && $order->order_status!=3){
-			foreach($data['order_product_id'] as $key => $product_id){
-				
+		} elseif ($order->order_status != 2 && $order->order_status != 3) {
+			foreach ($data['order_product_id'] as $key => $product_id) {
+
 				$product = Product::find($product_id);
 				$product_quantity = $product->product_quantity;
 				$product_sold = $product->product_sold;
-				foreach($data['quantity'] as $key2 => $qty){
-						if($key==$key2){
-								$pro_remain = $product_quantity + $qty;
-								$product->product_quantity = $pro_remain;
-								$product->product_sold = $product_sold - $qty;
-								$product->save();
-						}
+				foreach ($data['quantity'] as $key2 => $qty) {
+					if ($key == $key2) {
+						$pro_remain = $product_quantity + $qty;
+						$product->product_quantity = $pro_remain;
+						$product->product_sold = $product_sold - $qty;
+						$product->save();
+					}
 				}
 			}
 		}
-
-
 	}
-	public function print_order($checkout_code){
+	public function print_order($checkout_code)
+	{
 		$pdf = \App::make('dompdf.wrapper');
 		$pdf->loadHTML($this->print_order_convert($checkout_code));
-		
+
 		return $pdf->stream();
 	}
-	public function print_order_convert($checkout_code){
-		$order_details = OrderDetails::where('order_code',$checkout_code)->get();
-		$order = Order::where('order_code',$checkout_code)->get();
-		foreach($order as $key => $ord){
+	public function print_order_convert($checkout_code)
+	{
+		$order_details = OrderDetails::where('order_code', $checkout_code)->get();
+		$order = Order::where('order_code', $checkout_code)->get();
+		foreach ($order as $key => $ord) {
 			$customer_id = $ord->customer_id;
 			$shipping_id = $ord->shipping_id;
 		}
-		$customer = Customer::where('customer_id',$customer_id)->first();
-		$shipping = Shipping::where('shipping_id',$shipping_id)->first();
+		$customer = Customer::where('customer_id', $customer_id)->first();
+		$shipping = Shipping::where('shipping_id', $shipping_id)->first();
 
 		$order_details_product = OrderDetails::with('product')->where('order_code', $checkout_code)->get();
 
-		foreach($order_details_product as $key => $order_d){
+		foreach ($order_details_product as $key => $order_d) {
 
 			$product_coupon = $order_d->product_coupon;
 		}
-		if($product_coupon != 'no'){
-			$coupon = Coupon::where('coupon_code',$product_coupon)->first();
+		if ($product_coupon != 'no') {
+			$coupon = Coupon::where('coupon_code', $product_coupon)->first();
 
 			$coupon_condition = $coupon->coupon_condition;
 			$coupon_number = $coupon->coupon_number;
 
-			if($coupon_condition==1){
-				$coupon_echo = $coupon_number.'%';
-			}elseif($coupon_condition==2){
-				$coupon_echo = number_format($coupon_number,0,',','.').'đ';
+			if ($coupon_condition == 1) {
+				$coupon_echo = $coupon_number . '%';
+			} elseif ($coupon_condition == 2) {
+				$coupon_echo = number_format($coupon_number, 0, ',', '.') . 'đ';
 			}
-		}else{
+		} else {
 			$coupon_condition = 2;
 			$coupon_number = 0;
 
 			$coupon_echo = '0';
-		
 		}
 
 		$output = '';
 
-		$output.='<style>body{
+		$output .= '<style>body{
 			font-family: DejaVu Sans;
 		}
 		.table-styling{
@@ -121,8 +122,6 @@ class OrderController extends Controller
 			border:1px solid #000;
 		}
 		</style>
-		<h1><centerCông ty TNHH một thành viên ABCD</center></h1>
-		<h4><center>Độc lập - Tự do - Hạnh phúc</center></h4>
 		<p>Người đặt hàng</p>
 		<table class="table-styling">
 				<thead>
@@ -133,17 +132,17 @@ class OrderController extends Controller
 					</tr>
 				</thead>
 				<tbody>';
-				
-		$output.='		
+
+		$output .= '		
 					<tr>
-						<td>'.$customer->customer_name.'</td>
-						<td>'.$customer->customer_phone.'</td>
-						<td>'.$customer->customer_email.'</td>
+						<td>' . $customer->customer_name . '</td>
+						<td>' . $customer->customer_phone . '</td>
+						<td>' . $customer->customer_email . '</td>
 						
 					</tr>';
-				
 
-		$output.='				
+
+		$output .= '				
 				</tbody>
 			
 		</table>
@@ -160,19 +159,19 @@ class OrderController extends Controller
 					</tr>
 				</thead>
 				<tbody>';
-				
-		$output.='		
+
+		$output .= '		
 					<tr>
-						<td>'.$shipping->shipping_name.'</td>
-						<td>'.$shipping->shipping_address.'</td>
-						<td>'.$shipping->shipping_phone.'</td>
-						<td>'.$shipping->shipping_email.'</td>
-						<td>'.$shipping->shipping_notes.'</td>
+						<td>' . $shipping->shipping_name . '</td>
+						<td>' . $shipping->shipping_address . '</td>
+						<td>' . $shipping->shipping_phone . '</td>
+						<td>' . $shipping->shipping_email . '</td>
+						<td>' . $shipping->shipping_notes . '</td>
 						
 					</tr>';
-				
 
-		$output.='				
+
+		$output .= '				
 				</tbody>
 			
 		</table>
@@ -190,47 +189,47 @@ class OrderController extends Controller
 					</tr>
 				</thead>
 				<tbody>';
-			
-				$total = 0;
 
-				foreach($order_details_product as $key => $product){
+		$total = 0;
 
-					$subtotal = $product->product_price*$product->product_sales_quantity;
-					$total+$product->product_feeship=$subtotal;
+		foreach ($order_details_product as $key => $product) {
 
-					if($product->product_coupon!='no'){
-						$product_coupon = $product->product_coupon;
-					}else{
-						$product_coupon = 'không mã';
-					}		
+			$subtotal = $product->product_price * $product->product_sales_quantity;
+			$total + $product->product_feeship = $subtotal;
 
-		$output.='		
+			if ($product->product_coupon != 'no') {
+				$product_coupon = $product->product_coupon;
+			} else {
+				$product_coupon = 'không mã';
+			}
+
+			$output .= '		
 					<tr>
-						<td>'.$product->product_name.'</td>
-						<td>'.$product_coupon.'</td>
-						<td>'.number_format($product->product_feeship,0,',','.').'đ'.'</td>
-						<td>'.$product->product_sales_quantity.'</td>
-						<td>'.number_format($product->product_price,0,',','.').'đ'.'</td>
-						<td>'.number_format($subtotal,0,',','.').'đ'.'</td>
+						<td>' . $product->product_name . '</td>
+						<td>' . $product_coupon . '</td>
+						<td>' . number_format($product->product_feeship, 0, ',', '.') . 'đ' . '</td>
+						<td>' . $product->product_sales_quantity . '</td>
+						<td>' . number_format($product->product_price, 0, ',', '.') . 'đ' . '</td>
+						<td>' . number_format($subtotal, 0, ',', '.') . 'đ' . '</td>
 						
 					</tr>';
-				}
+		}
 
-				if($coupon_condition==1){
-					$total_after_coupon = ($total*$coupon_number)/100;
-	                $total_coupon = $total - $total_after_coupon;
-				}else{
-                  	$total_coupon = $total - $coupon_number;
-				}
+		if ($coupon_condition == 1) {
+			$total_after_coupon = ($total * $coupon_number) / 100;
+			$total_coupon = $total - $total_after_coupon;
+		} else {
+			$total_coupon = $total - $coupon_number;
+		}
 
-		$output.= '<tr>
-				<td colspan="2">
-					<p>Tổng giảm: '.$coupon_echo.'</p>
-					<p>Phí ship: '.number_format($product->product_feeship,0,',','.').'đ'.'</p>
-					<p>Thanh toán : '.number_format($total_coupon + $product->product_feeship,0,',','.').'đ'.'</p>
+		$output .= '<tr>
+				<td colspan="6">
+					<p>Tổng giảm: ' . $coupon_echo . '</p>
+					<p>Phí ship: ' . number_format($product->product_feeship, 0, ',', '.') . 'đ' . '</p>
+					<p>Thanh toán : ' . number_format($total_coupon + $product->product_feeship, 0, ',', '.') . 'đ' . '</p>
 				</td>
 		</tr>';
-		$output.='				
+		$output .= '				
 				</tbody>
 			
 		</table>
@@ -245,8 +244,8 @@ class OrderController extends Controller
 					</tr>
 				</thead>
 				<tbody>';
-						
-		$output.='				
+
+		$output .= '				
 				</tbody>
 			
 		</table>
@@ -255,41 +254,41 @@ class OrderController extends Controller
 
 
 		return $output;
-
 	}
-	public function view_order($order_code){
+	public function view_order($order_code)
+	{
 		// dd($order_code);
-		$order_details = OrderDetails::with('product')->where('order_code',$order_code)->get();
-		$order = Order::where('order_code',$order_code)->get();
-		foreach($order as $key => $ord){
+		$order_details = OrderDetails::with('product')->where('order_code', $order_code)->get();
+		$order = Order::where('order_code', $order_code)->get();
+		foreach ($order as $key => $ord) {
 			$customer_id = $ord->customer_id;
 			$shipping_id = $ord->shipping_id;
 			$order_status = $ord->order_status;
 		}
-		$customer = Customer::where('customer_id',$customer_id)->first();
-		$shipping = Shipping::where('shipping_id',$shipping_id)->first();
+		$customer = Customer::where('customer_id', $customer_id)->first();
+		$shipping = Shipping::where('shipping_id', $shipping_id)->first();
 
 		$order_details_product = OrderDetails::with('product')->where('order_code', $order_code)->get();
 		// dd($order_details_product);
-		foreach($order_details_product as $key => $order_d){
+		foreach ($order_details_product as $key => $order_d) {
 
 			$product_coupon = $order_d->product_coupon;
 		}
-		if($product_coupon != 'no'){
-			$coupon = Coupon::where('coupon_code',$product_coupon)->first();
+		if ($product_coupon != 'no') {
+			$coupon = Coupon::where('coupon_code', $product_coupon)->first();
 			$coupon_condition = $coupon->coupon_condition;
 			$coupon_number = $coupon->coupon_number;
-		}else{
+		} else {
 			$coupon_condition = 2;
 			$coupon_number = 0;
 		}
-		
-		return view('admin.view_order')->with(compact('order_details','customer','shipping','order_details','coupon_condition','coupon_number','order','order_status'));
 
+		return view('admin.view_order')->with(compact('order_details', 'customer', 'shipping', 'order_details', 'coupon_condition', 'coupon_number', 'order', 'order_status'));
 	}
-    public function manage_order(){
-    	$order = Order::orderby('created_at','DESC')
-		->paginate(10);
-    	return view('admin.manage_order')->with(compact('order'));
-    }
+	public function manage_order()
+	{
+		$order = Order::orderby('created_at', 'DESC')
+			->paginate(10);
+		return view('admin.manage_order')->with(compact('order'));
+	}
 }

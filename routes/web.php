@@ -1,6 +1,12 @@
 <?php
+
+use App\Http\Controllers\BrandProduct;
+use App\Http\Controllers\CategoryProduct;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PayPalController;
+use App\Http\Controllers\ProductController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,21 +18,22 @@ use App\Http\Controllers\PayPalController;
 |
 */
 //Frontend 
-Route::get('/','HomeController@index' );
-Route::get('/trang-chu','HomeController@index');
+Route::get('/', [HomeController::class, 'index'] );
+Route::get('/trang-chu',[HomeController::class, 'index']);
 // Route::get('/404','HomeController@error_page');
-Route::post('/tim-kiem','HomeController@search');
+Route::post('/tim-kiem',[HomeController::class, 'search']);
 
 //Danh muc san pham trang chu
-Route::get('/danh-muc/{slug_category_product}','CategoryProduct@show_category_home');
-Route::get('/thuong-hieu/{brand_slug}','BrandProduct@show_brand_home');
-Route::get('/chi-tiet/{product_slug}','ProductController@details_product');
+Route::get('/danh-muc/{slug_category_product}',[CategoryProduct::class, 'show_category_home']);
+Route::get('/thuong-hieu/{brand_slug}', [BrandProduct::class, 'show_brand_home']);
+Route::get('/chi-tiet/{product_slug}',[ProductController::class, 'details_product']);
 
 //Backend
 Route::get('/admin','AdminController@index');
 Route::get('/dashboard','AdminController@show_dashboard');
 Route::get('/logout','AdminController@logout');
 Route::post('/admin-dashboard','AdminController@dashboard');
+Route::post('/statistic','AdminController@salesStatistics');
 
 
 //Category Product
