@@ -219,8 +219,14 @@ class AdminController extends Controller
         for ($i = (int)$startMonth; $i <= (int)$endMonth; $i++) {
             $order = $statistic->filter(function ($item) use ($i) {
                 return Carbon::parse($item->created_at)->format('m') == $i;
-            })->first();
-            $data[] = ['total' => $order ? $order->total : 0, 'month' => $i, 'year' => $year];
+            });
+            $total = 0;
+            if ($order) {
+                foreach($order as $item) {
+                    $total += $item->total;
+                }
+            }
+            $data[] = ['total' => $total, 'month' => $i, 'year' => $year];
         }
         return response()->json($data);
     }

@@ -46,9 +46,9 @@ class HomeController extends Controller
         //slide
         $slider = Slider::orderBy('slider_id', 'DESC')->where('slider_status', '1')->take(4)->get();
         //seo 
-        $meta_desc = "Chuyên bán những linh kiện điện tử";
-        $meta_keywords = "link kien dien tu";
-        $meta_title = "Linh kiện điện tử chính hãng";
+        $meta_desc = "Trang sức phụ kiện cao cấp";
+        $meta_keywords = "trang suc";
+        $meta_title = "Trang sức phụ kiện cao cấp";
         $url_canonical = $request->url();
         //--seo
         $cate_product = DB::table('tbl_category_product')->where('category_status', '0')->orderby('category_id', 'desc')->get();

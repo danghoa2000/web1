@@ -293,37 +293,36 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                 order_product_id.push($(this).val());
             });
             j = 0;
-            for (i = 0; i < order_product_id.length; i++) {
-                //so luong khach dat
-                var order_qty = $('.order_qty_' + order_product_id[i]).val();
-                //so luong ton kho
-                var order_qty_storage = $('.order_qty_storage_' + order_product_id[i]).val();
+            // for (i = 0; i < order_product_id.length; i++) {
+            //     //so luong khach dat
+            //     var order_qty = $('.order_qty_' + order_product_id[i]).val();
+            //     //so luong ton kho
+            //     var order_qty_storage = $('.order_qty_storage_' + order_product_id[i]).val();
 
-                if (parseInt(order_qty) > parseInt(order_qty_storage)) {
-                    j = j + 1;
-                    if (j == 1) {
-                        alert('Số lượng bán trong kho không đủ');
-                    }
-                    $('.color_qty_' + order_product_id[i]).css('background', '#000');
-                }
-            }
-            if (j == 0) {
-                $.ajax({
+            //     if (parseInt(order_qty) > parseInt(order_qty_storage)) {
+            //         j = j + 1;
+            //         if (j == 1) {
+            //             alert('Số lượng bán trong kho không đủ');
+            //         }
+            //         $('.color_qty_' + order_product_id[i]).css('background', '#000');
+            //     }
+            // }
+            // if (j == 0) {
+            //     
+            // }
+            $.ajax({
                     url: '{{ url('/update-order-qty') }}',
                     method: 'POST',
                     data: {
                         _token: _token,
                         order_status: order_status,
                         order_id: order_id,
-                        quantity: quantity,
-                        order_product_id: order_product_id
                     },
                     success: function(data) {
                         alert('Thay đổi tình trạng đơn hàng thành công');
                         location.reload();
                     }
                 });
-            }
         });
     </script>
     <script type="text/javascript">

@@ -45,13 +45,9 @@
                             <tr>
                                 <td><i>{{ $i }}</i></label></td>
                                 <td>{{ $ord->order_code }}</td>
-                                <td>{{ $ord->created_at }}</td>
+                                <td>{{ $ord->created_at }}</td> 
                                 <td>
-                                    @if ($ord->order_status == 1)
-                                        Đơn hàng mới
-                                    @else
-                                        Đã xử lý
-                                    @endif
+                                    {{ $ord->order_status == 1 ? 'Đơn hàng mới' : ($ord->order_status == 2 ? 'Đã xử lý' : 'Đơn hàng bị hủy') }}
                                 </td>
 
 
